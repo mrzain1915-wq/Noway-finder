@@ -60,6 +60,7 @@ jobs:
           test -x "$build_tools/aapt"
           "$build_tools/apksigner" verify --verbose --print-certs "$NOWAY_FINDER_APK"
           badging="$($build_tools/aapt dump badging "$NOWAY_FINDER_APK")"
+          echo "$badging" | head -1
           grep -F "package: name='com.noway.finder' versionCode='1' versionName='1.0.0-debug'" <<<"$badging"
 
           sha256sum "$NOWAY_FINDER_APK" > SHA256SUMS-Android.txt
