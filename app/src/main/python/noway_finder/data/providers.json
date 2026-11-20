@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "updated": "2026-11-19",
+  "providers": [
+    {"name":"Cloudflare","cnames":["cloudflare.net"],"headers":["cf-ray","cf-cache-status"],"servers":["cloudflare"],"asns":["13335"],"reference":"https://developers.cloudflare.com/fundamentals/reference/http-request-headers/"},
+    {"name":"Amazon CloudFront","cnames":["cloudfront.net"],"headers":["x-amz-cf-id","x-amz-cf-pop"],"servers":["cloudfront"],"asns":[],"reference":"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/RequestAndResponseBehaviorCustomOrigin.html"},
+    {"name":"Akamai","cnames":["akamaiedge.net","edgekey.net","edgesuite.net","akamai.net"],"headers":["akamai-grn","x-akamai-request-id"],"servers":["akamaighost"],"asns":["20940","16625"],"reference":"https://techdocs.akamai.com/property-mgr/docs/edge-hostnames"},
+    {"name":"Fastly","cnames":["fastly.net","fastlylb.net"],"headers":["x-fastly-request-id"],"servers":[],"asns":["54113"],"reference":"https://www.fastly.com/documentation/reference/http/http-headers/X-Served-By/"},
+    {"name":"Azure CDN / Front Door","cnames":["azureedge.net","azurefd.net"],"headers":["x-azure-ref"],"servers":[],"asns":[],"reference":"https://learn.microsoft.com/en-us/azure/frontdoor/front-door-http-headers-protocol"},
+    {"name":"Bunny CDN","cnames":["b-cdn.net"],"headers":["cdn-pullzone","cdn-requestid"],"servers":["bunnycdn"],"asns":[],"reference":"https://docs.bunny.net/docs/cdn-headers"},
+    {"name":"CDN77","cnames":["cdn77.org"],"headers":["x-cdn77-pop","x-cdn77-cache"],"servers":["cdn77"],"asns":[],"reference":"https://client.cdn77.com/support"},
+    {"name":"Gcore CDN","cnames":["gcdn.co","gcorecdn.net"],"headers":["x-id-fe","x-id"],"servers":[],"asns":[],"reference":"https://gcore.com/docs/cdn"},
+    {"name":"CacheFly","cnames":["cachefly.net"],"headers":[],"servers":["cachefly"],"asns":[],"reference":"https://www.cachefly.com/"},
+    {"name":"KeyCDN","cnames":["kxcdn.com"],"headers":[],"servers":["keycdn-engine"],"asns":[],"reference":"https://www.keycdn.com/support/pull-zone"},
+    {"name":"CDNetworks","cnames":["panthercdn.com","cdngc.net","gccdn.net"],"headers":[],"servers":[],"asns":[],"reference":"https://documents.cdnetworks.com/"}
+  ]
+}
