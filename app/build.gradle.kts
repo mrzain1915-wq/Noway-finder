@@ -30,6 +30,7 @@ android {
 
     buildTypes {
         debug {
+            versionNameSuffix = "-debug"
             signingConfig = signingConfigs.getByName("debug")
         }
     }
