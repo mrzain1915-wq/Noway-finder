@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <title>NOWAY Finder</title>
+    <link rel="stylesheet" href="/style.css" />
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="#dashboard"
+        ><span class="mark">N</span
+        ><span
+          >NOWAY <b>FINDER</b
+          ><small>DOMAIN DISCOVERY · CDN EVIDENCE</small></span
+        ></a
+      ><span id="state" class="badge">READY</span>
+    </header>
+    <nav aria-label="Main navigation">
+      <button data-tab="dashboard">Dashboard</button
+      ><button data-tab="finder">Finder</button
+      ><button data-tab="results">Results</button
+      ><button data-tab="history">History</button
+      ><button data-tab="settings">Settings</button>
+    </nav>
+    <main>
+      <div id="notice" role="status" aria-live="polite" hidden></div>
+      <section id="dashboard" class="view">
+        <div class="heading">
+          <span class="eyebrow">YOUR LOCAL WORKSPACE</span>
+          <h1>Find the connections.</h1>
+          <p>
+            Discover domains, identify CDN evidence, and keep every finding.
+          </p>
+        </div>
+        <div class="stats">
+          <article>
+            <span>DISCOVERED HOSTS</span><strong id="stat-hosts">0</strong
+            ><small>across saved jobs</small>
+          </article>
+          <article>
+            <span>CDN IDENTIFIED</span><strong id="stat-cdn">0</strong
+            ><small>evidence attached</small>
+          </article>
+          <article>
+            <span>RELATED HOSTS</span><strong id="stat-related">0</strong
+            ><small>observed connections</small>
+          </article>
+          <article>
+            <span>SAVED JOBS</span><strong id="stat-jobs">0</strong
+            ><small>on this device</small>
+          </article>
+        </div>
+        <div class="panel">
+          <div class="panel-title">
+            <h2>Current job</h2>
+            <button data-tab="finder" class="primary">
+              Build a finding job
+            </button>
+          </div>
+          <p id="live-text">Your workspace is ready.</p>
+          <progress id="progress" value="0" max="1"></progress>
+          <p id="warnings" class="muted"></p>
+        </div>
+        <div class="panel">
+          <h2>Recent work</h2>
+          <div id="recent" class="job-list"></div>
+        </div>
+      </section>
+      <section id="finder" class="view" hidden>
+        <div class="heading">
+          <span class="eyebrow">DISCOVERY + IDENTIFICATION</span>
+          <h1>Build a Finder job</h1>
+          <p>
+            Choose root domains and sources. Related hosts retain their
+            connection evidence.
+          </p>
+        </div>
+        <form id="finder-form">
+          <div class="form-grid">
+            <div>
+              <div class="panel">
+                <h2>Targets</h2>
+                <label
+                  >Root domains / website URLs<textarea
+                    id="roots"
+                    rows="5"
+                    placeholder="example.com&#10;https://example.org"
+                    required
+                  ></textarea>
+                </label>
+                <div class="button-row">
+                  <label class="file-button"
+                    >Import TXT / CSV<input
+                      id="import-file"
+                      type="file"
+                      accept=".txt,.csv,text/plain,text/csv" /></label
+                  ><select id="import-mode" aria-label="Import destination">
+                    <option value="seeds">Import known hosts</option>
+                    <option value="roots">Import root domains</option></select
+                  ><button id="clear-targets" type="button">Clear</button>
+                </div>
+                <p id="import-summary" class="muted">No imported hosts.</p>
+                <label
+                  >Known hosts / extra seeds<textarea
+                    id="seeds"
+                    rows="3"
+                    placeholder="api.example.com"
+                  ></textarea>
+                </label>
+              </div>
+              <div class="panel">
+                <h2>Discovery sources</h2>
+                <label
+                  >Mode<select id="mode">
+                    <option value="verify">
+                      Discover + DNS/HTTP/CDN verification
+                    </option>
+                    <option value="discover">
+                      Public-record discovery only
+                    </option>
+                  </select></label
+                ><label class="check"
+                  ><input id="ct" type="checkbox" checked />Certificate
+                  Transparency records</label
+                ><label class="check"
+                  ><input id="commoncrawl" type="checkbox" />Common Crawl URL
+                  index</label
+                ><label class="check"
+                  ><input id="wordlist" type="checkbox" />DNS wordlist discovery
+                  (active queries)</label
+                ><label
+                  >Additional wordlist entries<textarea
+                    id="custom_words"
+                    rows="3"
+                    placeholder="cdn&#10;assets&#10;api"
+                  ></textarea></label
+                ><label class="check"
+                  ><input id="related" type="checkbox" checked />Collect links,
+                  redirects, TLS names and CNAME relationships</label
+                ><label class="check"
+                  ><input id="probe_related" type="checkbox" />Also send
+                  verification requests to external related hosts</label
+                >
+                <p class="muted">
+                  A connection records how a host was found. It does not
+                  establish common ownership.
+                </p>
+              </div>
+            </div>
+            <div>
+              <div class="panel">
+                <h2>Performance & limits</h2>
+                <label
+                  >Preset<select id="preset">
+                    <option value="balanced">
+                      Balanced · 32 workers / 30 requests per second
+                    </option>
+                    <option value="eco">
+                      Eco · 8 workers / 10 requests per second
+                    </option>
+                    <option value="fast">
+                      Fast · 64 workers / 100 requests per second
+                    </option>
+                    <option value="custom">Custom</option>
+                  </select></label
+                >
+                <div class="field-grid">
+                  <label
+                    >Workers<input
+                      id="workers"
+                      type="number"
+                      min="1"
+                      max="128"
+                      value="32" /></label
+                  ><label
+                    >Requests / sec<input
+                      id="rate"
+                      type="number"
+                      min="0.1"
+                      max="500"
+                      step="0.1"
+                      value="30" /></label
+                  ><label
+                    >Timeout (sec)<input
+                      id="timeout"
+                      type="number"
+                      min="0.1"
+                      max="60"
+                      step="0.1"
+                      value="8" /></label
+                  ><label
+                    >Retries<input
+                      id="retries"
+                      type="number"
+                      min="0"
+                      max="3"
+                      value="1" /></label
+                  ><label
+                    >In-scope host limit<input
+                      id="max_hosts"
+                      type="number"
+                      min="1"
+                      max="100000"
+                      value="10000" /></label
+                  ><label
+                    >Related host limit<input
+                      id="max_related"
+                      type="number"
+                      min="0"
+                      max="100000"
+                      value="2000" /></label
+                  ><label
+                    >Connection depth<input
+                      id="max_depth"
+                      type="number"
+                      min="0"
+                      max="5"
+                      value="2" /></label
+                  ><label
+                    >Crawl index page limit<input
+                      id="source_pages"
+                      type="number"
+                      min="1"
+                      max="20"
+                      value="3" /></label
+                  ><label
+                    >HTML page budget<input
+                      id="max_pages"
+                      type="number"
+                      min="0"
+                      max="200"
+                      value="20"
+                  /></label>
+                </div>
+                <p class="muted">
+                  10,000+ records are supported when sources contain them. The
+                  limit is a ceiling, not a promised result count.
+                </p>
+              </div>
+              <div class="panel">
+                <h2>Verification</h2>
+                <label class="check"
+                  ><input id="verify_tls" type="checkbox" checked />Verify TLS
+                  certificates</label
+                ><label class="check"
+                  ><input id="asn" type="checkbox" checked />ASN fallback when
+                  stronger CDN evidence is unavailable</label
+                ><label class="check"
+                  ><input id="allow_private" type="checkbox" />Allow requests to
+                  private / local addresses</label
+                ><label
+                  >Custom DNS resolvers (one IP per line)<textarea
+                    id="dns_servers"
+                    rows="2"
+                    placeholder="Use system DNS by default"
+                  ></textarea>
+                </label>
+              </div>
+              <div class="panel">
+                <h2>Profiles</h2>
+                <label
+                  >Saved profile<select id="profile">
+                    <option value="">Choose a profile</option>
+                  </select></label
+                >
+                <div class="button-row">
+                  <button id="load-profile" type="button">Load</button
+                  ><button id="save-profile" type="button">
+                    Save current settings
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="action-dock">
+            <span id="plan-summary">Ready to discover</span>
+            <div class="button-row">
+              <button id="preview" type="button">Review plan</button
+              ><button type="submit" class="primary" id="start">
+                Start Finder</button
+              ><button id="pause" type="button">Pause</button
+              ><button id="stop" type="button" class="danger">Stop</button>
+            </div>
+          </div>
+        </form>
+      </section>
+      <section id="results" class="view" hidden>
+        <div class="heading">
+          <span class="eyebrow">COMPLETE SAVED EVIDENCE</span>
+          <h1>Results explorer</h1>
+          <p>
+            Filter the dataset, inspect connection evidence, and export every
+            matching record.
+          </p>
+        </div>
+        <div class="panel">
+          <label>Job<select id="result-job"></select></label>
+          <div class="filter-grid">
+            <label
+              >Search<input
+                id="query"
+                type="search"
+                placeholder="Hostname or provider" /></label
+            ><label
+              >CDN<select id="provider">
+                <option value="">All providers</option>
+                <option>Cloudflare</option>
+                <option>Amazon CloudFront</option>
+                <option>Akamai</option>
+                <option>Fastly</option>
+                <option>Azure CDN / Front Door</option>
+                <option>Bunny CDN</option>
+                <option>CDN77</option>
+                <option>Gcore CDN</option>
+                <option>CacheFly</option>
+                <option>KeyCDN</option>
+                <option>CDNetworks</option>
+                <option>Unknown</option>
+              </select></label
+            ><label
+              >Connection scope<select id="scope">
+                <option value="">All</option>
+                <option value="in_scope">Under input roots</option>
+                <option value="related">Related / external</option>
+              </select></label
+            ><label
+              >Confidence<select id="confidence">
+                <option value="">All</option>
+                <option>high</option>
+                <option>medium</option>
+                <option>low</option>
+                <option>unknown</option>
+              </select></label
+            ><label
+              >IP family<select id="family">
+                <option value="0">All</option>
+                <option value="4">IPv4</option>
+                <option value="6">IPv6</option>
+              </select></label
+            ><label
+              >HTTP status<input
+                id="http-status"
+                type="number"
+                min="100"
+                max="599"
+                placeholder="Any"
+            /></label>
+          </div>
+          <div class="button-row">
+            <label class="check"
+              ><input id="alive" type="checkbox" />Resolved / responsive</label
+            ><label class="check"
+              ><input id="cdn" type="checkbox" />CDN identified only</label
+            ><button id="apply-filters">Apply filters</button
+            ><button id="reset-filters">Reset</button>
+          </div>
+          <div class="export-row">
+            <span>Export full selection</span
+            ><button data-export="csv">CSV</button
+            ><button data-export="txt">TXT</button
+            ><select id="txt-field" aria-label="TXT fields">
+              <option value="hostname">Hostnames</option>
+              <option value="root">Root domains</option>
+              <option value="ips">IP addresses</option></select
+            ><select id="extra-export" aria-label="Additional export formats">
+              <option value="zip">ZIP report bundle</option>
+              <option value="json">JSON</option>
+              <option value="jsonl">JSONL</option>
+              <option value="html">HTML</option>
+              <option value="md">Markdown</option></select
+            ><button id="download-extra">Download report</button>
+          </div>
+        </div>
+        <div class="panel table-panel">
+          <div
+            class="table-scroll"
+            tabindex="0"
+            aria-label="Scrollable findings table"
+          >
+            <table>
+              <thead>
+                <tr>
+                  <th>Hostname</th>
+                  <th>CDN / confidence</th>
+                  <th>Scope</th>
+                  <th>Status</th>
+                  <th>IP addresses</th>
+                  <th>Evidence</th>
+                </tr>
+              </thead>
+              <tbody id="result-rows"></tbody>
+            </table>
+          </div>
+          <div class="pagination">
+            <span id="result-count">Choose a job</span>
+            <div class="button-row">
+              <button id="previous">Previous</button
+              ><button id="next">Next</button>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section id="history" class="view" hidden>
+        <div class="heading">
+          <span class="eyebrow">DURABLE JOBS</span>
+          <h1>History & queue</h1>
+          <p>
+            Resume interrupted work or reuse the configuration for a fresh
+            discovery.
+          </p>
+        </div>
+        <div class="panel">
+          <div class="panel-title">
+            <h2>Saved jobs</h2>
+            <button id="run-next">Run next queued job</button>
+          </div>
+          <div id="history-list" class="job-list"></div>
+        </div>
+        <div class="panel">
+          <h2>Compare saved jobs</h2>
+          <div class="field-grid">
+            <label>Before<select id="compare-first"></select></label
+            ><label>After<select id="compare-second"></select></label>
+          </div>
+          <button id="compare">Compare hosts & providers</button>
+          <pre id="comparison" tabindex="0">Choose two jobs.</pre>
+        </div>
+      </section>
+      <section id="settings" class="view" hidden>
+        <div class="heading">
+          <span class="eyebrow">WORKSPACE SETTINGS</span>
+          <h1>Keep it yours.</h1>
+        </div>
+        <div class="panel">
+          <h2>Appearance</h2>
+          <label
+            >Theme<select id="theme">
+              <option value="dark">Deep terminal</option>
+              <option value="light">Light</option>
+            </select></label
+          >
+        </div>
+        <div class="panel">
+          <h2>Detection data</h2>
+          <p>
+            Provider rules are editable JSON. Official Cloudflare and Fastly IP
+            prefixes can be refreshed separately.
+          </p>
+          <button id="update-data">Refresh official IP ranges</button>
+          <p id="update-status" class="muted"></p>
+        </div>
+        <div class="panel">
+          <h2>Local-first workspace</h2>
+          <p>
+            Jobs, evidence, profiles and cached source responses stay in your
+            local SQLite database. Discovery contacts only the selected public
+            sources and verification targets.
+          </p>
+          <p>
+            Confidence is a heuristic label backed by visible signals.
+            Public-source failures and configured limits appear in job warnings.
+          </p>
+          <p>NOWAY Finder 1.0.0 · Python 3.11+ · Windows / Linux / Termux</p>
+        </div>
+      </section>
+    </main>
+    <dialog id="review">
+      <h2>Review Finder plan</h2>
+      <pre id="review-text"></pre>
+      <p>
+        External related hosts are recorded with their source. Verify only hosts
+        you are permitted to check.
+      </p>
+      <div class="button-row">
+        <button id="review-close">Back</button
+        ><button id="confirm-start" class="primary">Start this job</button>
+      </div>
+    </dialog>
+    <dialog id="details">
+      <h2>Finding evidence</h2>
+      <pre id="detail-text"></pre>
+      <div class="button-row">
+        <button id="copy-finding">Copy JSON</button
+        ><button id="detail-close">Close</button>
+      </div>
+    </dialog>
+    <footer>NOWAY FINDER <span>Discovery with evidence.</span></footer>
+  </body>
+</html>
